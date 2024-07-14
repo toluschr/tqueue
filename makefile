@@ -11,8 +11,8 @@ clean:
 tqueue: tqueue.o test.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-test.o: test.c tqueue.h
+test.o: test.c tqueue.h makefile
 	$(CC) $(CFLAGS) $< -c -o $@
 
-tqueue.o: tqueue.c tqueue.h
+tqueue.o: tqueue.c tqueue.h makefile
 	$(CC) $(CFLAGS) $< -c -o $@

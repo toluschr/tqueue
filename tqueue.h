@@ -26,6 +26,7 @@ struct tqueue {
  * @brief Macro to calculate a nodes allocation size
  *
  * @param t The type of data stored in the tqueue_node
+ *
  * @return The full size of the tqueue_node structure
  */
 #define tqueue_sizeof(t) (sizeof(struct tqueue_node) + sizeof(t))
@@ -40,7 +41,7 @@ extern "C" {
  * Initializes queue internal data structures and creates an empty queue.
  * Other calls must only be made after tqueue_init.
  *
- * @param q the tqueue instance to initialize
+ * @param q queue instance
  * @return int -1 on error, 0 on success
  *
  * @memberof tqueue
@@ -72,7 +73,7 @@ int tqueue_length(struct tqueue *q);
  *
  * In case of any error, the queue will not be modified.
  *
- * @param q queue to operate on
+ * @param q queue instance
  * @param n node to append
  *
  * @exception EOVERFLOW the queue is full
@@ -86,7 +87,7 @@ int tqueue_put_node(struct tqueue *q, struct tqueue_node *n);
 /**
  * @brief removes the first node from the queue
  *
- * @param q queue to operate on
+ * @param q queue instance
  * @param n memory to write output to
  *
  * @exception EINTR interrupted by a signal
@@ -99,7 +100,7 @@ int tqueue_get_node(struct tqueue *q, struct tqueue_node **n);
 /**
  * @brief tries to remove the first node from the queue
  *
- * @param q queue to operate on
+ * @param q queue instance
  * @param n memory to write output to
  *
  * @exception EAGAIN the queue doesn't contain an element
@@ -117,7 +118,7 @@ int tqueue_tryget_node(struct tqueue *q, struct tqueue_node **n);
  * the last operation on a given queue. Calling any other queue function after
  * tqueue_fini is undefined. Calling tqueue_fini multiple times is undefined.
  *
- * @param q queue to operate on
+ * @param q queue instance
  *
  * @exception EINVAL the queue is not a valid queue
  * @return int -1 on error, 0 on success

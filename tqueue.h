@@ -16,6 +16,12 @@ struct tqueue {
     sem_t sem_data;
 };
 
+#define tqueue_sizeof(t) (sizeof(struct tqueue_node) + sizeof(t))
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \brief Initialize tqueue instance
  *
@@ -73,6 +79,8 @@ int tqueue_tryget_node(struct tqueue *q, struct tqueue_node **n);
  */
 int tqueue_fini(struct tqueue *q);
 
-#define tqueue_sizeof(t) (sizeof(struct tqueue_node) + sizeof(t))
+#ifdef __cplusplus
+}
+#endif
 
 #endif // TQUEUE_H_

@@ -47,17 +47,20 @@ extern "C" {
  */
 int tqueue_init(struct tqueue *q);
 
-#if 0
 /**
- * @brief Gets the current queue size
+ * @brief gets the current queue length.
  *
- * Calls sem_getvalue on the underlying producer consumer lock.
+ * The Function calls sem_getvalue on the underlying producer consumer lock and
+ * subtracts 1 if the queue is NULL terminated.
+ *
+ * @param q queue instance
+ *
+ * @exception EINTR interrupted by a signal
  * @return int -1 on error, 0 on success
  *
  * @memberof tqueue
  */
-int tqueue_size(struct tqueue *q);
-#endif
+int tqueue_length(struct tqueue *q);
 
 /**
  * @brief appends a node to the end queue

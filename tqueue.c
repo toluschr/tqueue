@@ -16,12 +16,12 @@ static int remove_node(struct tqueue *q, struct tqueue_node **n)
         *n = q->head;
     }
 
-    if (q->head && q->tail) {
+    if (q->head) {
         q->head = q->head->next;
+    }
 
-        if (q->head == NULL) {
-            q->tail = NULL;
-        }
+    if (q->head == NULL) {
+        q->tail = NULL;
     }
 
     // EOVERFLOW impossible, sem_wait called by tqueue
@@ -49,14 +49,29 @@ int tqueue_init(struct tqueue *q)
     return 0;
 }
 
-int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)
+int tqueue_length(struct tqueue *q)
 {
-    if (n == NULL) {
-        return sem_post(&q->sem_prod_cons);
+    int out;
+    if (sem_wait(&q->sem_data) < 0) {
+        assert(errno == EINTR);
+        return -1;
     }
 
-    n->next = NULL;
+    // EINVAL impossible, sem_wait(q->sem_data) would throw exception.
+    assert(sem_getvalue(&q->sem_prod_cons, &out) == 0);
 
+    // EOVERFLOW impossible, sem_wait called by tqueue
+    assert(sem_post(&q->sem_data) != -1);
+
+    out -= !!(out) & !!(q->tail == NULL);
+
+    // EOVERFLOW impossible, sem_wait called by tqueue
+    assert(sem_post(&q->sem_data) != -1);
+    return out;
+}
+
+int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)
+{
     if (sem_wait(&q->sem_data) < 0) {
         assert(errno == EINTR);
         return -1;
@@ -68,8 +83,21 @@ int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)
         return -1;
     }
 
+    if (n == NULL) {
+        q->tail = NULL;
+        // EOVERFLOW impossible, sem_wait called by tqueue
+        assert(sem_post(&q->sem_data) != -1);
+        return 0;
+    }
+
+    n->next = NULL;
+
+    if (!q->head) {
+        q->head = n;
+    }
+
     if (!q->tail) {
-        q->head = q->tail = n;
+        q->tail = n;
     } else {
         q->tail->next = n;
     }

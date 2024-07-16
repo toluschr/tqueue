@@ -51,23 +51,20 @@ int tqueue_init(struct tqueue *q)
 
 int tqueue_length(struct tqueue *q)
 {
-    int out;
+    int size;
     if (sem_wait(&q->sem_data) < 0) {
         assert(errno == EINTR);
         return -1;
     }
 
     // EINVAL impossible, sem_wait(q->sem_data) would throw exception.
-    assert(sem_getvalue(&q->sem_prod_cons, &out) == 0);
+    assert(sem_getvalue(&q->sem_prod_cons, &size) == 0);
+
+    size -= !!size & !q->tail;
 
     // EOVERFLOW impossible, sem_wait called by tqueue
     assert(sem_post(&q->sem_data) != -1);
-
-    out -= !!(out) & !!(q->tail == NULL);
-
-    // EOVERFLOW impossible, sem_wait called by tqueue
-    assert(sem_post(&q->sem_data) != -1);
-    return out;
+    return size;
 }
 
 int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)

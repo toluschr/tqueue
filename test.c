@@ -7,6 +7,13 @@
 
 #include <errno.h>
 
+#define TEST(name) \
+    { \
+        fprintf(stderr, "%s\n", #name); \
+        name(); \
+        fprintf(stderr, "\r\033[A%s \033[32;1mOK\033[0m\n", #name); \
+    }
+
 static void test_queue_insert_and_remove_with_end(void)
 {
     struct tqueue q;
@@ -206,11 +213,11 @@ static void test_tryget_empty_queue(void)
 
 int main(void)
 {
-    test_queue_insert_and_remove_with_end();
-    test_queue_length_zero_with_end();
-    test_queue_length_zero_without_end();
-    test_queue_length_with_end();
-    test_queue_length_without_end();
-    test_tryget_terminated_queue();
-    test_tryget_empty_queue();
+    TEST(test_queue_insert_and_remove_with_end);
+    TEST(test_queue_length_zero_with_end);
+    TEST(test_queue_length_zero_without_end);
+    TEST(test_queue_length_with_end);
+    TEST(test_queue_length_without_end);
+    TEST(test_tryget_terminated_queue);
+    TEST(test_tryget_empty_queue);
 }

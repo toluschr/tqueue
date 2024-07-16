@@ -68,8 +68,8 @@ int tqueue_length(struct tqueue *q);
  *
  * Appends a given node to the end of the queue. The underlying memory must be
  * managed by the user. If the given node is NULL, the queue will be
- * NULL-terminated. Appending any other element after the NULL-terminator is
- * undefined.
+ * NULL-terminated. When appending an element after the NULL-terminator,
+ * the function returns EAGAIN.
  *
  * In case of any error, the queue will not be modified.
  *
@@ -77,6 +77,7 @@ int tqueue_length(struct tqueue *q);
  * @param n node to append
  *
  * @exception EOVERFLOW the queue is full
+ * @exception EAGAIN the queue is currently NULL-terminated
  * @exception EINTR interrupted by a signal
  * @return int -1 on error, 0 on success
  *

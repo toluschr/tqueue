@@ -87,6 +87,13 @@ int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)
         return 0;
     }
 
+    if (q->head && !q->tail) {
+        // EOVERFLOW impossible, sem_wait called by tqueue
+        assert(sem_post(&q->sem_data) != -1);
+        errno = EAGAIN;
+        return -1;
+    }
+
     n->next = NULL;
 
     if (!q->head) {

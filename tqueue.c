@@ -12,7 +12,7 @@ static int remove_node(struct tqueue *q, struct tqueue_node **n)
         return -1;
     }
 
-    if (n != NULL) {
+    if (n) {
         *n = q->head;
     }
 
@@ -20,7 +20,7 @@ static int remove_node(struct tqueue *q, struct tqueue_node **n)
         q->head = q->head->next;
     }
 
-    if (q->head == NULL) {
+    if (!q->head) {
         q->tail = NULL;
     }
 
@@ -74,37 +74,36 @@ int tqueue_put_node(struct tqueue *q, struct tqueue_node *n)
         return -1;
     }
 
-    if (sem_post(&q->sem_prod_cons) == -1) {
-        // EOVERFLOW impossible, sem_wait called by tqueue
-        assert(sem_post(&q->sem_data) != -1);
-        return -1;
-    }
-
-    if (n == NULL) {
-        q->tail = NULL;
-        // EOVERFLOW impossible, sem_wait called by tqueue
-        assert(sem_post(&q->sem_data) != -1);
-        return 0;
-    }
-
-    if (q->head && !q->tail) {
+    if (n && q->head && !q->tail) {
         // EOVERFLOW impossible, sem_wait called by tqueue
         assert(sem_post(&q->sem_data) != -1);
         errno = EAGAIN;
         return -1;
     }
 
-    n->next = NULL;
+    if (sem_post(&q->sem_prod_cons) == -1) {
+        // EOVERFLOW impossible, sem_wait called by tqueue
+        assert(sem_post(&q->sem_data) != -1);
+        return -1;
+    }
+
+    if (!n) {
+        q->tail = NULL;
+        // EOVERFLOW impossible, sem_wait called by tqueue
+        assert(sem_post(&q->sem_data) != -1);
+        return 0;
+    }
 
     if (!q->head) {
         q->head = n;
     }
 
-    if (!q->tail) {
-        q->tail = n;
-    } else {
+    if (q->tail) {
         q->tail->next = n;
     }
+
+    n->next = NULL;
+    q->tail = n;
 
     // EOVERFLOW impossible, sem_wait called by tqueue
     assert(sem_post(&q->sem_data) != -1);
